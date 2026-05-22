@@ -1,71 +1,13 @@
 import { CheckCircle, ShoppingBag, FileText, Package } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
-import { Pack } from '../types';
+import { MOCK_PACKS } from '../data/mockData';
 
 interface ThankYouPageProps {
   onNavigate: (page: string) => void;
 }
 
+const featuredPacks = MOCK_PACKS.filter(p => p.is_featured).slice(0, 3);
+
 export default function ThankYouPage({ onNavigate }: ThankYouPageProps) {
-  const [featuredPacks, setFeaturedPacks] = useState<Pack[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    loadFeaturedPacks();
-  }, []);
-
-  const loadFeaturedPacks = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('packs')
-        .select('*')
-        .eq('is_featured', true)
-        .limit(3);
-
-      if (error) throw error;
-
-      if (!data || data.length === 0) {
-        const defaultPacks = [
-          {
-            name: 'Pack Essentiel Contrats',
-            description: 'Tous les contrats de travail dont vous avez besoin : CDI, CDD, Stage, Alternance, Interim',
-            price: 49.99,
-            original_price: 89.99,
-            is_featured: true,
-          },
-          {
-            name: 'Pack Complet RH',
-            description: 'L\'ensemble complet : contrats, fiches de paie, avenants, attestations, règlement intérieur',
-            price: 99.99,
-            original_price: 199.99,
-            is_featured: true,
-          },
-          {
-            name: 'Pack Formation',
-            description: 'Spécial organismes de formation : conventions, attestations, évaluations conformes Qualiopi',
-            price: 79.99,
-            original_price: 149.99,
-            is_featured: true,
-          },
-        ];
-
-        const { data: insertedPacks } = await supabase
-          .from('packs')
-          .insert(defaultPacks)
-          .select();
-
-        setFeaturedPacks(insertedPacks || []);
-      } else {
-        setFeaturedPacks(data);
-      }
-    } catch (error) {
-      console.error('Error loading packs:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white py-12">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -133,47 +75,41 @@ export default function ThankYouPage({ onNavigate }: ThankYouPageProps) {
             </p>
           </div>
 
-          {loading ? (
-            <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
-            </div>
-          ) : (
-            <div className="grid md:grid-cols-3 gap-8">
-              {featuredPacks.map((pack) => (
-                <div
-                  key={pack.id}
-                  className="bg-white rounded-xl shadow-lg overflow-hidden border-2 border-purple-100 hover:border-purple-300 transition-all transform hover:scale-105"
-                >
-                  <div className="bg-gradient-to-r from-purple-600 to-purple-700 text-white p-6">
-                    <h3 className="text-xl font-bold mb-2">{pack.name}</h3>
-                    <div className="flex items-baseline space-x-2">
-                      {pack.original_price && (
-                        <span className="text-purple-200 line-through text-lg">
-                          {pack.original_price.toFixed(2)}€
-                        </span>
-                      )}
-                      <span className="text-3xl font-bold">{pack.price.toFixed(2)}€</span>
-                    </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            {featuredPacks.map((pack) => (
+              <div
+                key={pack.id}
+                className="bg-white rounded-xl shadow-lg overflow-hidden border-2 border-purple-100 hover:border-purple-300 transition-all transform hover:scale-105"
+              >
+                <div className="bg-gradient-to-r from-purple-600 to-purple-700 text-white p-6">
+                  <h3 className="text-xl font-bold mb-2">{pack.name}</h3>
+                  <div className="flex items-baseline space-x-2">
                     {pack.original_price && (
-                      <div className="inline-block bg-yellow-400 text-purple-900 px-3 py-1 rounded-full text-xs font-bold mt-2">
-                        ÉCONOMISEZ {((1 - pack.price / pack.original_price) * 100).toFixed(0)}%
-                      </div>
+                      <span className="text-purple-200 line-through text-lg">
+                        {pack.original_price.toFixed(2)}€
+                      </span>
                     )}
+                    <span className="text-3xl font-bold">{pack.price.toFixed(2)}€</span>
                   </div>
-
-                  <div className="p-6">
-                    <p className="text-gray-700 mb-6">{pack.description}</p>
-                    <button
-                      onClick={() => onNavigate('shop')}
-                      className="w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors"
-                    >
-                      Voir le pack
-                    </button>
-                  </div>
+                  {pack.original_price && (
+                    <div className="inline-block bg-yellow-400 text-purple-900 px-3 py-1 rounded-full text-xs font-bold mt-2">
+                      ÉCONOMISEZ {((1 - pack.price / pack.original_price) * 100).toFixed(0)}%
+                    </div>
+                  )}
                 </div>
-              ))}
-            </div>
-          )}
+
+                <div className="p-6">
+                  <p className="text-gray-700 mb-6">{pack.description}</p>
+                  <button
+                    onClick={() => onNavigate('shop')}
+                    className="w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors"
+                  >
+                    Voir le pack
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="text-center">

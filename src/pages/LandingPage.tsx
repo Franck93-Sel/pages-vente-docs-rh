@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { FileText, CheckCircle, Download, Shield, Clock, Award } from 'lucide-react';
-import { supabase } from '../lib/supabase';
 
 interface LandingPageProps {
   onNavigate: (page: string, data?: any) => void;
@@ -10,34 +9,14 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  const [message] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setMessage('');
-
-    try {
-      const { error } = await supabase
-        .from('leads')
-        .insert({
-          email,
-          name,
-          source: 'landing',
-        });
-
-      if (error) throw error;
-
-      onNavigate('free-download', { email, name });
-    } catch (error: any) {
-      if (error.code === '23505') {
-        onNavigate('free-download', { email, name });
-      } else {
-        setMessage('Une erreur est survenue. Veuillez réessayer.');
-      }
-    } finally {
-      setLoading(false);
-    }
+    await new Promise(r => setTimeout(r, 400));
+    setLoading(false);
+    onNavigate('free-download', { email, name });
   };
 
   return (
